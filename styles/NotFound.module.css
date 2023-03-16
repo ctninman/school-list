@@ -1,0 +1,12 @@
+.not-found {
+	background-color: brown;
+}
+
+.not-found h1 {
+	font-size: 80px;
+}
+
+.not-found h2 {
+	font-size: 30px;
+	color: aquamarine;
+}
