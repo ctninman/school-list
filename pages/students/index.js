@@ -1,14 +1,22 @@
 import styles from '../../styles/Students.module.css'
 import Link from 'next/link'
+import Image from 'next/image'
+import { createClient } from 'contentful'
 
 export const getStaticProps = async () => {
-	const res = await fetch('https://jsonplaceholder.typicode.com/users');
-	const data = await res.json()
-	console.log(data)
+  
+	const client = createClient({
+    space: process.env.CONTENTFUL_SPACE_ID,
+    accessToken: process.env.CONTENTFUL_ACCESS_KEY,
+  });
+
+	const res2 = await client.getEntries({
+    content_type: 'student'
+  });
 
 	return {
 		props: {
-			students: data
+			students: res2.items
 		}
 	}
 
@@ -21,10 +29,19 @@ const Students = ({ students }) => {
 			<h1>Student List</h1>
 			{students.map(student => (
 				<Link 
-					href={'/students/' + student.id} 
-					key={student.id}
+					href={'/students/' + student.sys.id} 
+					key={student.sys.id}
 					className={styles.single}>
-						<h3>{student.name}</h3>
+						<Image 
+							key={student.sys.id}
+							src={'https:' + student.fields.studentPhoto.fields.file.url}
+							alt={student.fields.studentPhoto.fields.description}
+							width={150}
+							height={150}/>
+						<div className='student-desc'>
+							<h3>{student.fields.studentName}</h3>
+							<h2>{student.fields.gradeLevel} Grade</h2>
+						</div>
 				</Link>
 			))}
 

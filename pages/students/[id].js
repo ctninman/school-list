@@ -1,37 +1,54 @@
-export const getStaticPaths = async () => {
-	const res = await fetch('https://jsonplaceholder.typicode.com/users')
-	const data = await res.json()
+import Image from 'next/image'
 
-	const paths = data.map(student => {
-		return {
-			params: {id: student.id.toString()}
-		}
+import { createClient } from "contentful"
+
+const client = createClient({
+	space: process.env.CONTENTFUL_SPACE_ID,
+	accessToken: process.env.CONTENTFUL_ACCESS_KEY,
+});
+
+export const getStaticPaths = async () => {
+	const res = await client.getEntries({
+		content_type: 'student'
 	})
 
+	const paths = res.items.map(student => {
+		return {
+			params: { id: student.sys.id}
+		}
+	})
+		
 	return {
 		paths,
 		fallback: false
 	}
 }
 
-export const getStaticProps = async (context) => {
-	const id = context.params.id;
-	const res = await fetch('https://jsonplaceholder.typicode.com/users/' + id)
-
-	const data = await res.json()
+export async function getStaticProps({ params }) {
+	
+	const { items } = await client.getEntries({
+		content_type: 'student',
+		"sys.id": params.id
+	})
 
 	return {
-		props: {student: data}
+		props: {student: items[0]}
 	}
 }
 
 const details = ({student}) => {
+	console.log( student )
 	return (
 		<div>
-			<h1>{student.name}</h1>
-			<p>{student.email}</p>
-			<p>{student.website}</p>
-			<p>{student.address.city}</p>
+			<Image 
+				key={student.sys.id}
+				src={'https:' + student.fields.studentPhoto.fields.file.url}
+				alt={student.fields.studentPhoto.fields.description}
+				width={250}
+				height={250}/>
+			<h1>{student.fields.studentName}</h1>
+			<p>{student.fields.nickname}</p>
+			<p>{student.fields.gradeLevel} Grade</p>
 		</div>
 	)
 }
