@@ -49,6 +49,7 @@ const details = ({student}) => {
 			<h1>{student.fields.studentName}</h1>
 			<p>{student.fields.nickname}</p>
 			<p>{student.fields.gradeLevel} Grade</p>
+			<p>{student.fields.hobbies}</p>
 		</div>
 	)
 }
